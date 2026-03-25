@@ -22,11 +22,12 @@ Each module can be executed independently to avoid error propagation.
 
 ## 4. Project Structure
 
-- src/                # core logic
-- configs/            # prompts & parameters
-- experiments/        # runnable scripts
-- data/               # dataset (not included)
-
+```bash
+src/                # core logic
+configs/            # prompts & parameters
+experiments/        # runnable scripts
+data/               # dataset (not included)
+```
 
 ## 5. Quick Start
 
