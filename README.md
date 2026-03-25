@@ -12,6 +12,14 @@ AgiComm is a generative agent-based simulation framework designed to model inter
 
 ## 3. Architecture
 
+AgiComm consists of three independent modules:
+
+- Media Inquiring Module
+- News Reconstruction Module
+- Social Dissemination Module
+
+Each module can be executed independently to avoid error propagation.
+
 
 ## 4. Quick Start
 
