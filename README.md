@@ -22,10 +22,10 @@ Each module can be executed independently to avoid error propagation.
 
 ### Project Structure
 
-> src/                # core logic
-> configs/            # prompts & parameters
-> experiments/        # runnable scripts
-> data/               # dataset (not included)
+src/                # core logic
+configs/            # prompts & parameters
+experiments/        # runnable scripts
+data/               # dataset (not included)
 
 
 ## 4. Quick Start
@@ -34,6 +34,7 @@ Each module can be executed independently to avoid error propagation.
 git clone https://github.com/Qihusb/AgiComm.git
 cd AgiComm
 pip install -r requirements.txt
+```
 
 ## 5. Experiments
 
