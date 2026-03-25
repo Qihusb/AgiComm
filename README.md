@@ -20,15 +20,15 @@ AgiComm consists of three independent modules:
 
 Each module can be executed independently to avoid error propagation.
 
-### Project Structure
+## 4. Project Structure
 
-src/                # core logic
-configs/            # prompts & parameters
-experiments/        # runnable scripts
-data/               # dataset (not included)
+- src/                # core logic
+- configs/            # prompts & parameters
+- experiments/        # runnable scripts
+- data/               # dataset (not included)
 
 
-## 4. Quick Start
+## 5. Quick Start
 
 ```bash
 git clone https://github.com/Qihusb/AgiComm.git
@@ -36,8 +36,8 @@ cd AgiComm
 pip install -r requirements.txt
 ```
 
-## 5. Experiments
+## 6. Experiments
 
 
-## 6. Citation
+## 7. Citation
 
