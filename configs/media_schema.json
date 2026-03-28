@@ -1,0 +1,12 @@
+{
+    "static_fields": ["media_id", "media_name", "country", "region", "founding_year", "ownership_type", "is_press_conference_regular"],
+    "dynamic_prefixes": {
+      "pc_part": "behavior_dynamic.press_conference.participation",
+      "pc_topic": "behavior_dynamic.press_conference.topic_focus",
+      "pc_intent": "behavior_dynamic.press_conference.question_intent",
+      "news_topic": "behavior_dynamic.news_reports.topic_focus",
+      "consistency": "behavior_dynamic.aerospace_consistency"
+    }
+}
+
+

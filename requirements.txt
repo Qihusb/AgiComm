@@ -2,3 +2,8 @@ openai
 numpy
 pandas
 tqdm
+fastapi
+uvicorn
+pandas
+scikit-learn
+openai  
