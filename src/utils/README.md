@@ -45,22 +45,22 @@
      使用 `utf-8-sig` 编码保存，便于中文环境（如 Excel）打开。
 
 
-## [upward_generalization.py](src\utils\upward_generalization.py)
+## [media_upward_generalization.py](src\utils\media_upward_generalization.py)
 - **功能概述**
-  - 将 `data\processed\media_inquiring_dynamic.csv` 中与航天提问相关的特征，上升泛化为“通用科学传播画像”。
+  - 将 `data\processed\media_science_inquiring_dynamic.csv` 中与航天提问相关的特征，上升泛化为“通用科学传播画像”。
   - 生成用于后续分析/建模的精简特征表，输出到 `data\processed\media_science_generalized.csv`。
 
 - **输入**
   - `input_path`（默认）：
-    - `../../data/processed/media_inquiring_dynamic.csv`
+    - `../../data/processed/media_science_inquiring_dynamic.csv`
   - 主要依赖字段：
-    - 航天话题关注度列（5个 `press_conference_topic_focus_Science_航天_*` 列）
+    - 航天话题关注度列（5个 `press_conference_topic_focus_Science_航空航天_*` 列）
     - 提问意图结构列（`press_conference_question_intent_focus_structure_*`）
     - 核心静态列（`media_id/media_name/country/ownership_type`）
 
 - **输出**
   - `output_path`（默认）：
-    - `../../data/processed/media_science_generalized.csv`
+    - `../../data/processed/media_science_inquiring_generalized.csv`
   - 输出字段由三部分构成：
     - 核心静态字段：`media_id/media_name/country/ownership_type`
     - 科学泛化指标：`sci_interest_breadth/sci_specialization/sci_dominant_tag`
@@ -79,6 +79,13 @@
      - 若 5 列之和为 0，则标为 `Universal_Reporter`
   5. 意图字段泛化重命名  
      将场景化字段 `press_conference_question_intent_focus_structure_*` 重命名为通用 `intent_*` 字段（如 `intent_risk_assessment`）。
+     包括如下字段：
+      - `intent_agenda_setting`:议程设置意图，数值高的Agent关注“下一步要做什么”
+      - `intent_fact_checking`:事实核查意图，该数值高的Agent不容易被宏大叙事忽悠，反映了媒体的“技术硬度”
+      - `intent_diplomacy_collab`:外交与协作意向，衡量媒体对该事件在“地缘政治”与“国际合作”框架下的关注度，决定了Agent是否会问“该科学发现对中欧合作有何影响”或者“是否会排斥特定国家参与”
+      - `intent_social_impact`:社会影响评估，将纯粹的科学事实转化为价值判断，高权重的Agent会将科技进步解读为“人类福祉”或“社会变革”
+      - `intent_causal_logic`:因果逻辑挖掘，代表媒体的“深度报道倾向”，Agent可能会追溯“为什么中国能做到这一点？”或“这一突破背后的政策驱动力是什么？”
+      - `intent_risk_assessment`:风险评估/防御性视角，该数值高可能会在模拟中扮演“反对者”或“质疑者”,专门挖掘技术的双刃剑效应、伦理危机或安全漏洞
   6. 选择最终字段并导出  
      拼接核心静态字段 + 3 个科学指标 + 意图字段，保存为 `utf-8-sig` 编码 CSV。
 
@@ -108,3 +115,31 @@
      - 异常：打印错误并返回固定失败提示
   5. 全局实例  
      文件末尾实例化 `llm_client = LLMClient()`，方便其他模块直接复用。
+
+## [netizen_science_upward_generalization.py](src\utils\netizen_science_upward_generalization.py)
+- **功能概述**
+  - 面向**网民画像**（Excel 原始表），将多个科技领域文件**字段对齐**并合并为一套**标准列结构**，实现“向上泛化”后的统一网民画像库。
+  - 与 `media_upward_generalization.py`（媒体侧 CSV）不同：本脚本读 **`.xlsx`**，按领域配置批量处理。
+
+- **输入**
+  - 函数参数 `file_configs`：`{ 领域名: xlsx 路径 }` 字典；领域名会写入标准字段 `interest_domain`。
+  - 脚本内默认配置（相对 `src/utils/`）示例：
+    - `health` → `../../data/raw/netizen_tech_health_profile.xlsx`
+    - `aerospace` → `../../data/raw/netizen_tech_aerospace_profile.xlsx`
+    - `ai` → `../../data/raw/netizen_tech_ai_profile.xlsx`
+    - `data` → `../../data/raw/netizen_tech_data_profile.xlsx`
+  - 原始表需能通过列名映射或分支逻辑导出标准字段；常见源列包括：`Handle`、`Location`、`Language`、`FollowersCount`、`Daily_Post_Rate`、`Influence_Score`、`Bot_Score`、`Tone_Emotional_Score`、`Strategy_Label`、`Interest_Entropy` 等（详见脚本内 `mapping` 与条件分支）。
+
+- **输出**
+  - 默认保存：`../../data/processed/netizen_standardized_profiles.csv`（`utf-8-sig`）。
+  - 标准列（`standard_schema`）：`handle`、`location`、`language`、`followers`、`daily_activeness`、`influence_index`、`bot_probability`、`tech_stance_score`、`emotion_intensity`、`strategy_type`、`interest_domain`、`is_verified`、`propagation_speed`、`cognitive_entropy`。
+
+- **处理过程**
+  1. 按领域遍历 `file_configs`，用 `pandas.read_excel` 读取每个 xlsx。
+  2. **立场数值化** `tech_stance_score`：优先 `Stance_Numeric`；否则将 `Stance` 文本映射为 ±1/0；都没有则填 0。
+  3. **认证** `is_verified`：来自 `Is_Blue` 或 `Verified` 布尔列，映射为 0/1；缺失则 0。
+  4. **传播速度** `propagation_speed`：优先 `RT_Ratio`，否则 `Sample_Avg_Retweet`，否则用 `Influence_Score * 0.1` 近似。
+  5. 按 `mapping` 重命名列，并设置 `interest_domain` 为当前领域键名。
+  6. 仅保留 `standard_schema` 列（缺失列以 NaN 补齐），纵向合并全部领域。
+  7. 对部分字段做缺失填充：`location`→`Global`，`strategy_type`→`Generalist`，`language`→`en`。
+  8. `__main__` 中写出 CSV 并打印行数与列名；异常时打印错误信息。

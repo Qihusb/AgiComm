@@ -8,7 +8,8 @@ load_dotenv()
 PROVIDERS = {
     "zhipu": {
         "api_key": os.getenv("ZHIPU_API_KEY"),
-        "base_url": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+        # OpenAI 兼容 SDK 会自动在 base_url 后拼接 /chat/completions，此处切勿再写 /chat/completions
+        "base_url": "https://open.bigmodel.cn/api/paas/v4",
         "model_name": "glm-4.7-flash",
     },
     "deepseek": {
