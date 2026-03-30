@@ -4,9 +4,11 @@ AgiComm 统一仿真 API：媒体提问等路由均在此注册。
   python -m src.modules.api
 """
 from typing import Optional
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
 from src.modules.media_inquiring.inquiry_engine import InquiryEngine
@@ -52,6 +54,8 @@ app = FastAPI(
     title="AgiComm Simulation API",
     description="统一仿真入口：媒体提问及后续扩展模块。",
     version="1.0.0",
+    docs_url="/docs",  # 确保文档可用
+    redocs_url="/redoc",
 )
 
 setup_exception_handlers(app)
@@ -64,7 +68,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ---------------------------------------------------------------------------
+# 【修复 1】健康检查接口（确保 GET 可访问）
+# ---------------------------------------------------------------------------
+@app.get("/health")
+async def health():
+    return {"status": "ok", "service": "agicomm"}
 
+# ---------------------------------------------------------------------------
+# 【修复 2】核心提问接口（支持 POST，修复 405）
+# ---------------------------------------------------------------------------
 @app.post("/simulate/inquiry")
 async def run_inquiry(request: EventRequest):
     try:
@@ -109,13 +122,14 @@ async def run_inquiry(request: EventRequest):
         },
     )
 
-
-@app.get("/health")
-async def health():
-    return {"status": "ok", "service": "agicomm"}
+# ---------------------------------------------------------------------------
+# 【修复 3】静态文件必须放在 最后 ！！！（关键）
+# ---------------------------------------------------------------------------
+frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
 
 
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

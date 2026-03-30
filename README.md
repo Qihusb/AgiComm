@@ -49,6 +49,23 @@ pip install -r requirements.txt
   - Health check endpoint and error handling
   - Frontend integration best practices (progress bar, error tips, etc.)
 
+## 7. Production Deployment
+
+For production server deployment and detailed deployment instructions, see **[DEPLOYMENT.md](DEPLOYMENT.md)**
+
+Quick start options:
+- **Linux/macOS**: `bash scripts/build.sh`
+- **Windows**: `scripts\build.bat`
+- **Docker**: `docker-compose up -d`
+- **Nginx + Gunicorn**: See deployment guide for systemd setup
+
+Key deployment features:
+- ✅ One-command build automation for both Linux and Windows
+- ✅ Docker containerization with health checks
+- ✅ Nginx reverse proxy configuration with HTTPS support
+- ✅ Production environment templates (.env.production.example)
+- ✅ Static file serving for frontend distribution
+
 ---
 
-## 7. Citation
+## 8. Citation

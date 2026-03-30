@@ -1,31 +1,31 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
-    <div class="max-w-7xl mx-auto space-y-6">
+  <div class="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-100 via-white to-slate-100 p-4 text-slate-900 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dark:text-slate-100 sm:p-6 md:p-8">
+    <div class="mx-auto max-w-7xl space-y-4 sm:space-y-6">
       <!-- 标题头 -->
-      <header class="border-b border-slate-700/50 pb-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-4xl font-bold text-white tracking-tight flex items-center gap-3">
-              <span class="text-5xl">🎙️</span> 媒体提问场景仿真
+      <header class="border-b border-slate-200/80 pb-4 dark:border-slate-700/50 sm:pb-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <h1 class="flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:gap-3 sm:text-3xl md:text-4xl">
+              <span class="text-3xl sm:text-4xl md:text-5xl">🎙️</span> 媒体提问场景仿真
             </h1>
-            <p class="text-slate-400 mt-3">基于 GSS 范式，模拟多国媒体针对特定科技事件的反应逻辑</p>
+            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 sm:mt-3 sm:text-base">基于 GSS 范式，模拟多国媒体针对特定科技事件的反应逻辑</p>
           </div>
         </div>
       </header>
 
       <!-- 输入面板 -->
-      <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 shadow-2xl border border-slate-700/50 backdrop-blur">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 p-4 shadow-xl backdrop-blur dark:border-slate-700/50 dark:from-slate-800 dark:to-slate-900 sm:p-6 md:p-8">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
           <!-- 左侧：事件输入与媒体选择 -->
           <div class="lg:col-span-2 space-y-6">
             <!-- 事件描述 -->
             <div>
-              <label class="block text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+              <label class="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
                 <span class="text-lg">📝</span> 事件描述 (Event Input)
               </label>
               <textarea 
                 v-model="eventText"
-                class="w-full h-36 bg-slate-700/30 border border-slate-600/50 rounded-xl p-4 text-slate-100 focus:ring-2 focus:ring-blue-500/50 outline-none focus:border-blue-500/50 transition placeholder-slate-500"
+                class="h-36 w-full rounded-xl border border-slate-200 bg-white p-4 text-slate-900 transition placeholder-slate-400 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:border-slate-600/50 dark:bg-slate-700/30 dark:text-slate-100 dark:placeholder-slate-500"
                 placeholder="请输入需要仿真的科技事件内容，如：'2月12日，中国一箭七星发射巴基斯坦卫星...'"
               ></textarea>
             </div>
@@ -33,13 +33,13 @@
             <!-- 媒体选择 -->
             <div>
               <div class="flex items-center justify-between mb-3">
-                <label class="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                  <span class="text-lg">📺</span> 选择媒体 <span class="text-xs text-slate-400">(最多 {{ MEDIA_LIMIT }} 个)</span>
+                <label class="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  <span class="text-lg">📺</span> 选择媒体 <span class="text-xs text-slate-500 dark:text-slate-400">(最多 {{ MEDIA_LIMIT }} 个)</span>
                 </label>
                 <button 
                   v-if="selectedMedia.length > 0"
                   @click="clearSelection"
-                  class="text-xs px-3 py-1 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg transition"
+                  class="rounded-lg bg-slate-200 px-3 py-1 text-xs text-slate-700 transition hover:bg-slate-300 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:bg-slate-700"
                 >
                   ✕ 清空
                 </button>
@@ -51,21 +51,21 @@
                   v-model="mediaSearchText"
                   type="text"
                   placeholder="🔍 搜索媒体名称或国家..."
-                  class="w-full bg-slate-700/30 border border-slate-600/50 rounded-lg px-4 py-2 text-slate-100 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none focus:border-blue-500/50 transition placeholder-slate-500"
+                  class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 transition placeholder-slate-400 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50 dark:border-slate-600/50 dark:bg-slate-700/30 dark:text-slate-100 dark:placeholder-slate-500"
                 />
-                <div v-if="mediaSearchText" class="absolute right-3 top-2.5 text-slate-400 text-sm cursor-pointer hover:text-slate-200" @click="mediaSearchText = ''">✕</div>
+                <div v-if="mediaSearchText" class="absolute right-3 top-2.5 cursor-pointer text-sm text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" @click="mediaSearchText = ''">✕</div>
               </div>
 
               <!-- 媒体列表 -->
-              <div class="max-h-48 overflow-y-auto bg-slate-700/20 rounded-xl border border-slate-600/30 p-4 space-y-2">
-                <div v-if="allMediaList.length === 0" class="text-slate-500 text-sm py-8 text-center">媒体列表加载中...</div>
-                <div v-else-if="filteredMediaList.length === 0" class="text-slate-500 text-sm py-8 text-center">
+              <div class="max-h-48 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-600/30 dark:bg-slate-700/20">
+                <div v-if="allMediaList.length === 0" class="py-8 text-center text-sm text-slate-500">媒体列表加载中...</div>
+                <div v-else-if="filteredMediaList.length === 0" class="py-8 text-center text-sm text-slate-500">
                   <p>没有找到匹配的媒体</p>
                   <p class="text-xs mt-2">试试其他搜索关键词</p>
                 </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div v-else class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <label v-for="media in filteredMediaList" :key="media.media_id" 
-                         class="flex items-center space-x-3 text-slate-300 text-sm cursor-pointer group hover:bg-slate-700/30 p-2 rounded-lg transition">
+                         class="group flex cursor-pointer items-center space-x-3 rounded-lg p-2 text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700/30">
                     <input type="checkbox"
                            :value="media.media_id"
                            v-model="selectedMedia"
@@ -73,7 +73,7 @@
                            :disabled="isMediaLimit && !selectedMedia.includes(media.media_id)"
                            class="w-4 h-4 rounded cursor-pointer accent-blue-500"
                     >
-                    <span class="group-hover:text-slate-100 transition">
+                    <span class="transition group-hover:text-slate-900 dark:group-hover:text-slate-100">
                       <span class="font-medium">{{ media.media_name }}</span>
                       <span class="text-slate-500 ml-1 text-xs">({{ media.country }})</span>
                     </span>
@@ -93,14 +93,13 @@
 
           <!-- 右侧：操作面板 -->
           <div class="flex flex-col justify-between">
-            <div class="bg-slate-700/20 rounded-xl p-6 border border-slate-600/30 space-y-4">
-              <div class="text-sm text-slate-300 space-y-2">
+            <div class="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-600/30 dark:bg-slate-700/20 sm:p-6">
+              <div class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
                 <p class="flex items-center gap-2"><span>💡</span> <strong>提示：</strong></p>
-                <ul class="text-xs text-slate-400 space-y-1 ml-6">
-                  <li>• 不选媒体将使用全部媒体</li>
-                  <li>• 选择媒体数量越少越快</li>
+                <ul class="ml-6 space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                  <li>• 不选媒体将不可开启仿真</li>
+                  <li>• 选择媒体数量越少仿真速度越快</li>
                   <li>• 结果包含参与和不参与的媒体</li>
-                  <li>• 优化后每媒体仅需 1 次大模型调用</li>
                 </ul>
               </div>
             </div>
@@ -120,19 +119,19 @@
       <!-- 错误信息面板 -->
       <div v-if="error.message" 
            :class="[
-             'rounded-xl border-l-4 p-6 shadow-xl backdrop-blur transition-all duration-300',
+             'rounded-xl border-l-4 p-4 shadow-xl backdrop-blur transition-all duration-300 sm:p-6',
              errorStyleClass
            ]">
         <div class="flex items-start justify-between gap-4">
-          <div class="flex items-start gap-4 flex-1">
-            <span class="text-3xl mt-1">{{ error.icon }}</span>
-            <div class="flex-1">
-              <p class="font-bold text-lg mb-2">{{ error.title }}</p>
+          <div class="flex flex-1 items-start gap-3 sm:gap-4">
+            <span class="mt-1 text-2xl sm:text-3xl">{{ error.icon }}</span>
+            <div class="min-w-0 flex-1 text-slate-800 dark:text-inherit">
+              <p class="mb-2 text-base font-bold sm:text-lg">{{ error.title }}</p>
               <p class="mb-3 leading-relaxed">{{ error.message }}</p>
               
               <!-- 针对不同错误代码的解决方案 -->
-              <div v-if="error.solutions.length > 0" class="bg-black/20 rounded-lg p-4 mb-3 border border-white/10">
-                <p class="text-xs font-semibold uppercase mb-2 opacity-75">💡 解决方案：</p>
+              <div v-if="error.solutions.length > 0" class="mb-3 rounded-lg border border-slate-200 bg-slate-100 p-4 dark:border-white/10 dark:bg-black/20">
+                <p class="mb-2 text-xs font-semibold uppercase opacity-75">💡 解决方案：</p>
                 <ul class="space-y-2 text-xs">
                   <li v-for="(solution, idx) in error.solutions" :key="idx" class="flex gap-2">
                     <span class="flex-shrink-0">→</span>
@@ -142,19 +141,19 @@
               </div>
 
               <!-- 详细信息 -->
-              <div v-if="error.detail" class="text-xs opacity-75 bg-black/20 rounded-lg p-3 mb-3 font-mono border border-white/5">
-                <p class="text-orange-300">{{ error.detail }}</p>
+              <div v-if="error.detail" class="mb-3 rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs opacity-90 dark:border-white/5 dark:bg-black/20">
+                <p class="text-orange-700 dark:text-orange-300">{{ error.detail }}</p>
               </div>
 
               <!-- 额外建议 -->
-              <p v-if="error.suggestion" class="text-xs opacity-70 italic">
+              <p v-if="error.suggestion" class="text-xs italic opacity-80 dark:opacity-70">
                 📌 {{ error.suggestion }}
               </p>
             </div>
           </div>
           <button 
             @click="clearError"
-            class="flex-shrink-0 text-xl hover:opacity-70 transition p-2"
+            class="flex-shrink-0 p-2 text-xl transition hover:opacity-70"
             title="关闭错误提示"
           >
             ✕
@@ -165,13 +164,13 @@
       <!-- 结果展示 -->
       <div v-if="results.length > 0 || loading" class="space-y-6">
         <!-- 异常警告 -->
-        <div v-if="errorCount > 0" class="bg-red-950/40 rounded-xl p-6 border-l-4 border-red-500/50 shadow-lg">
+        <div v-if="errorCount > 0" class="rounded-xl border-l-4 border-red-400 bg-red-50 p-4 shadow-lg dark:border-red-500/50 dark:bg-red-950/40 sm:p-6">
           <div class="flex items-start gap-3">
-            <span class="text-3xl flex-shrink-0">⚠️</span>
-            <div class="flex-1">
-              <h3 class="text-red-300 font-semibold mb-2">检测到 {{ errorCount }} 个后端处理异常</h3>
-              <p class="text-red-200 text-sm mb-3">部分媒体的响应因后端模块异常而失败。这通常是由于 LLM API 不可用或网络连接问题。</p>
-              <div class="text-xs text-red-300 space-y-1">
+            <span class="flex-shrink-0 text-2xl sm:text-3xl">⚠️</span>
+            <div class="min-w-0 flex-1">
+              <h3 class="mb-2 font-semibold text-red-800 dark:text-red-300">检测到 {{ errorCount }} 个后端处理异常</h3>
+              <p class="mb-3 text-sm text-red-700 dark:text-red-200">部分媒体的响应因后端模块异常而失败。这通常是由于 LLM API 不可用或网络连接问题。</p>
+              <div class="space-y-1 text-xs text-red-700 dark:text-red-300">
                 <p>🔧 故障排查步骤：</p>
                 <ul class="list-disc list-inside ml-2 space-y-1">
                   <li>检查所有 LLM API（智谱、DeepSeek、OpenAI）的配置和密钥</li>
@@ -185,72 +184,72 @@
         </div>
 
         <!-- 进度条 -->
-        <div v-if="loading" class="bg-slate-800 rounded-xl p-6 border border-slate-700/50 shadow-lg">
-          <div class="flex items-center space-x-4 mb-4">
+        <div v-if="loading" class="rounded-xl border border-slate-200 bg-white p-4 shadow-lg dark:border-slate-700/50 dark:bg-slate-800 sm:p-6">
+          <div class="mb-4 flex items-center space-x-4">
             <span class="animate-spin text-3xl">⚙️</span>
-            <div class="flex-1">
-              <p class="text-slate-200 font-semibold">仿真进行中...</p>
-              <p class="text-slate-400 text-sm">已收到 <span class="text-blue-400 font-bold">{{ receivedCount }}</span> / <span class="text-slate-300 font-bold">{{ totalCount > 0 ? totalCount : '...' }}</span> 条结果</p>
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-slate-800 dark:text-slate-200">仿真进行中...</p>
+              <p class="text-sm text-slate-600 dark:text-slate-400">已收到 <span class="font-bold text-blue-600 dark:text-blue-400">{{ receivedCount }}</span> / <span class="font-bold text-slate-700 dark:text-slate-300">{{ totalCount > 0 ? totalCount : '...' }}</span> 条结果</p>
             </div>
           </div>
-          <div class="h-3 bg-slate-700 rounded-full overflow-hidden border border-slate-600/50">
+          <div class="h-3 overflow-hidden rounded-full border border-slate-200 bg-slate-200 dark:border-slate-600/50 dark:bg-slate-700">
             <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 rounded-full" 
                  :style="{ width: totalCount > 0 ? (100 * receivedCount / totalCount) + '%' : '15%' }"></div>
           </div>
         </div>
 
         <!-- 结果统计 -->
-        <div v-if="results.length > 0 && !loading" class="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div class="rounded-xl bg-slate-800 border border-slate-700/50 p-4 text-center">
-            <p class="text-slate-400 text-xs font-semibold mb-1">总计</p>
-            <p class="text-4xl font-bold text-white">{{ validResults.length }}</p>
+        <div v-if="results.length > 0 && !loading" class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
+          <div class="rounded-xl border border-slate-200 bg-white p-3 text-center dark:border-slate-700/50 dark:bg-slate-800 sm:p-4">
+            <p class="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">总计</p>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white sm:text-4xl">{{ validResults.length }}</p>
             <p v-if="errorCount > 0" class="text-xs text-red-400 mt-1">异常: {{ errorCount }}</p>
           </div>
-          <div class="rounded-xl bg-blue-950/40 border border-blue-500/30 p-4 text-center">
-            <p class="text-blue-300 text-xs font-semibold mb-1">参与提问</p>
-            <p class="text-4xl font-bold text-blue-400">{{ participatingCount }}</p>
+          <div class="rounded-xl border border-blue-200 bg-blue-50 p-3 text-center dark:border-blue-500/30 dark:bg-blue-950/40 sm:p-4">
+            <p class="mb-1 text-xs font-semibold text-blue-700 dark:text-blue-300">参与提问</p>
+            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 sm:text-4xl">{{ participatingCount }}</p>
           </div>
-          <div class="rounded-xl bg-slate-700/30 border border-slate-600/50 p-4 text-center">
-            <p class="text-slate-300 text-xs font-semibold mb-1">不参与</p>
-            <p class="text-4xl font-bold text-slate-400">{{ validResults.length - participatingCount }}</p>
+          <div class="rounded-xl border border-slate-200 bg-slate-100 p-3 text-center dark:border-slate-600/50 dark:bg-slate-700/30 sm:p-4">
+            <p class="mb-1 text-xs font-semibold text-slate-600 dark:text-slate-300">不参与</p>
+            <p class="text-2xl font-bold text-slate-500 dark:text-slate-400 sm:text-4xl">{{ validResults.length - participatingCount }}</p>
           </div>
-          <div v-if="errorCount > 0" class="rounded-xl bg-red-950/40 border border-red-500/30 p-4 text-center">
-            <p class="text-red-300 text-xs font-semibold mb-1">异常处理</p>
-            <p class="text-4xl font-bold text-red-400">{{ errorCount }}</p>
+          <div v-if="errorCount > 0" class="rounded-xl border border-red-200 bg-red-50 p-3 text-center dark:border-red-500/30 dark:bg-red-950/40 sm:p-4">
+            <p class="mb-1 text-xs font-semibold text-red-700 dark:text-red-300">异常处理</p>
+            <p class="text-2xl font-bold text-red-600 dark:text-red-400 sm:text-4xl">{{ errorCount }}</p>
           </div>
-          <div class="rounded-xl bg-slate-800 border border-slate-700/50 p-4 text-center">
-            <p class="text-slate-400 text-xs font-semibold mb-1">参与率</p>
-            <p class="text-4xl font-bold text-slate-300">{{ validResults.length > 0 ? ((100 * participatingCount / validResults.length).toFixed(1)) : 0 }}%</p>
+          <div class="rounded-xl border border-slate-200 bg-white p-3 text-center dark:border-slate-700/50 dark:bg-slate-800 sm:p-4">
+            <p class="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">参与率</p>
+            <p class="text-2xl font-bold text-slate-800 dark:text-slate-300 sm:text-4xl">{{ validResults.length > 0 ? ((100 * participatingCount / validResults.length).toFixed(1)) : 0 }}%</p>
           </div>
         </div>
 
         <!-- 结果卡片网格 -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
           <div v-for="(res, index) in results" :key="index" 
                :class="[
-                 'rounded-xl p-6 shadow-lg border-l-4 backdrop-blur transition-all duration-300',
+                 'rounded-xl border-l-4 p-4 shadow-lg backdrop-blur transition-all duration-300 sm:p-6',
                  res.has_error
-                   ? 'bg-gradient-to-br from-red-950/40 to-slate-900/40 border-red-500/50 hover:border-red-400 hover:shadow-red-500/20 opacity-90'
+                   ? 'border-red-400 bg-gradient-to-br from-red-50 to-white opacity-95 hover:border-red-500 hover:shadow-red-500/10 dark:border-red-500/50 dark:from-red-950/40 dark:to-slate-900/40 dark:hover:border-red-400 dark:hover:shadow-red-500/20'
                    : res.is_participating 
-                     ? 'bg-gradient-to-br from-blue-950/40 to-slate-900/40 border-blue-500/50 hover:border-blue-400 hover:shadow-blue-500/20' 
-                     : 'bg-gradient-to-br from-slate-800/30 to-slate-900/30 border-slate-700/50 hover:border-slate-600 opacity-75'
+                     ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-white hover:border-blue-500 hover:shadow-blue-500/10 dark:border-blue-500/50 dark:from-blue-950/40 dark:to-slate-900/40 dark:hover:border-blue-400 dark:hover:shadow-blue-500/20' 
+                     : 'border-slate-300 bg-gradient-to-br from-slate-50 to-white opacity-95 hover:border-slate-400 dark:border-slate-700/50 dark:from-slate-800/30 dark:to-slate-900/30 dark:hover:border-slate-600'
                ]">
             <!-- 媒体头部 -->
             <div class="flex justify-between items-start mb-4">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
                   <span :class="[
-                    'px-3 py-1 text-xs font-bold rounded-full uppercase',
+                    'rounded-full border px-3 py-1 text-xs font-bold uppercase',
                     res.is_participating 
-                      ? 'bg-blue-900/60 text-blue-200 border border-blue-500/30' 
-                      : 'bg-slate-700/60 text-slate-400 border border-slate-600/30'
+                      ? 'border-blue-200 bg-blue-100 text-blue-800 dark:border-blue-500/30 dark:bg-blue-900/60 dark:text-blue-200' 
+                      : 'border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-600/30 dark:bg-slate-700/60 dark:text-slate-400'
                   ]">
                     {{ res.country }}
                   </span>
                   <span v-if="res.is_participating" class="text-blue-400 text-sm">✓ 参与</span>
                   <span v-else class="text-slate-500 text-sm">✗ 不参与</span>
                 </div>
-                <h3 :class="['text-lg font-bold', res.is_participating ? 'text-white' : 'text-slate-400']">
+                <h3 :class="['text-base font-bold sm:text-lg', res.is_participating ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400']">
                   {{ res.media_name }}
                 </h3>
               </div>
@@ -264,12 +263,12 @@
 
             <!-- 媒体内容 -->
             <div :class="[
-              'rounded-lg p-5 mb-3 border-l-2 italic leading-relaxed',
+              'mb-3 rounded-lg border-l-2 p-4 italic leading-relaxed sm:p-5',
               res.has_error
-                ? 'bg-red-950/40 border-red-500/50 text-red-200 text-sm'
+                ? 'border-red-400 bg-red-50 text-sm text-red-900 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200'
                 : res.is_participating 
-                  ? 'bg-slate-800/50 border-blue-400/50 text-slate-200 text-sm' 
-                  : 'bg-slate-800/30 border-slate-600/30 text-slate-500 text-xs'
+                  ? 'border-blue-300 bg-white text-sm text-slate-800 dark:border-blue-400/50 dark:bg-slate-800/50 dark:text-slate-200' 
+                  : 'border-slate-200 bg-slate-50 text-xs text-slate-600 dark:border-slate-600/30 dark:bg-slate-800/30 dark:text-slate-500'
             ]">
               <div v-if="res.has_error" class="flex items-start gap-2">
                 <span class="text-lg flex-shrink-0">⚠️</span>
@@ -286,10 +285,10 @@
             <!-- 标签 -->
             <div class="flex gap-2 text-xs">
               <span :class="[
-                'px-2 py-1 rounded-md',
+                'rounded-md px-2 py-1',
                 res.is_participating 
-                  ? 'bg-blue-900/50 text-blue-300' 
-                  : 'bg-slate-700/30 text-slate-500'
+                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300' 
+                  : 'bg-slate-100 text-slate-500 dark:bg-slate-700/30'
               ]">
                 #{{ res.behavior_tag }}
               </span>
@@ -304,7 +303,18 @@
 <script setup>
 import { ref, computed } from 'vue'
 
-// ===== 响应式数据 =====
+// API 地址配置
+// 根据部署环境动态生成API地址
+const getApiBase = () => {
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:8001'
+  }
+  const protocol = window.location.protocol 
+  return `${protocol}//${window.location.hostname}:8001`
+}
+const API_BASE = getApiBase()
+
+//响应式数据 
 const eventText = ref('')
 const loading = ref(false)
 const results = ref([])
@@ -314,7 +324,6 @@ const selectedMedia = ref([])
 const mediaSearchText = ref('')
 const MEDIA_LIMIT = 15
 
-// 错误对象结构
 const error = ref({
   code: null,
   title: '',
@@ -325,7 +334,7 @@ const error = ref({
   icon: ''
 })
 
-// ===== 媒体列表（完整列表） =====
+// 媒体列表
 const allMediaList = ref([
   { media_id: 'media_081', media_name: '路透社', country: '英国' },
   { media_id: 'media_092', media_name: '新华社', country: '中国' },
@@ -445,23 +454,31 @@ const allMediaList = ref([
   { media_id: 'media_080', media_name: '印尼安塔拉通讯社', country: '印度尼西亚' },
 ])
 
-// ===== 计算属性 =====
+// 计算属性 
 const errorStyleClass = computed(() => {
   const baseClass = 'border-l-4'
   const codeToClass = {
-    'VALIDATION_ERROR': 'border-amber-500/50 bg-amber-950/40 text-amber-200',
-    'DATA_FILE_MISSING': 'border-purple-500/50 bg-purple-950/40 text-purple-200',
-    'DATA_READ_FAILED': 'border-purple-500/50 bg-purple-950/40 text-purple-200',
-    'LLM_UNAVAILABLE': 'border-orange-500/50 bg-orange-950/40 text-orange-200',
-    'SIMULATION_FAILED': 'border-red-500/50 bg-red-950/40 text-red-200',
-    'NETWORK_ERROR': 'border-red-500/50 bg-red-950/40 text-red-200',
-    'PARSE_ERROR': 'border-red-500/50 bg-red-950/40 text-red-200',
-    'TIMEOUT_ERROR': 'border-orange-500/50 bg-orange-950/40 text-orange-200'
+    'VALIDATION_ERROR':
+      'border-amber-400 bg-amber-50 text-amber-900 dark:border-amber-500/50 dark:bg-amber-950/40 dark:text-amber-200',
+    'DATA_FILE_MISSING':
+      'border-purple-400 bg-purple-50 text-purple-900 dark:border-purple-500/50 dark:bg-purple-950/40 dark:text-purple-200',
+    'DATA_READ_FAILED':
+      'border-purple-400 bg-purple-50 text-purple-900 dark:border-purple-500/50 dark:bg-purple-950/40 dark:text-purple-200',
+    'LLM_UNAVAILABLE':
+      'border-orange-400 bg-orange-50 text-orange-900 dark:border-orange-500/50 dark:bg-orange-950/40 dark:text-orange-200',
+    'SIMULATION_FAILED':
+      'border-red-400 bg-red-50 text-red-900 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200',
+    'NETWORK_ERROR':
+      'border-red-400 bg-red-50 text-red-900 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200',
+    'PARSE_ERROR':
+      'border-red-400 bg-red-50 text-red-900 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200',
+    'TIMEOUT_ERROR':
+      'border-orange-400 bg-orange-50 text-orange-900 dark:border-orange-500/50 dark:bg-orange-950/40 dark:text-orange-200',
   }
-  return `${baseClass} ${codeToClass[error.value.code] || 'border-red-500/50 bg-red-950/40 text-red-200'}`
+  return `${baseClass} ${codeToClass[error.value.code] || 'border-red-400 bg-red-50 text-red-900 dark:border-red-500/50 dark:bg-red-950/40 dark:text-red-200'}`
 })
 
-// 过滤后的媒体列表（根据搜索文本）
+// 过滤后的媒体列表
 const filteredMediaList = computed(() => {
   if (!mediaSearchText.value.trim()) {
     return allMediaList.value
@@ -478,8 +495,7 @@ const participatingCount = computed(() => results.value.filter(r => r.is_partici
 const errorCount = computed(() => results.value.filter(r => r.has_error).length)
 const validResults = computed(() => results.value.filter(r => !r.has_error))
 
-// ===== 方法 =====
-
+// 方法
 // 检测响应内容是否包含后端异常标记
 const isErrorResponse = (content) => {
   if (!content) return false
@@ -604,8 +620,8 @@ const handleErrorResponse = (statusCode, responseData) => {
       message: '无法连接到后端服务器。请检查后端是否正常运行。',
       icon: '🌐',
       solutions: [
-        '确保后端服务已启动：python -m src.modules.api',
-        '检查后端服务地址：http://localhost:8000',
+        '确保后端服务是否已启动',
+        '检查后端服务地址是否正确',
         '验证防火墙或代理设置没有阻止连接',
         '确保前端能访问后端（可能需要CORS配置）'
       ],
@@ -686,7 +702,7 @@ const runInquiry = async () => {
       body.media_ids = selectedMedia.value.slice(0, MEDIA_LIMIT)
     }
 
-    const response = await fetch('http://localhost:8000/simulate/inquiry', {
+    const response = await fetch(`${API_BASE}/simulate/inquiry`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -799,7 +815,7 @@ const runInquiry = async () => {
         '🌐 网络连接失败',
         '无法连接到后端服务器，请确保后端已启动。',
         e.message,
-        ['启动后端：python -m src.modules.api', '检查 http://localhost:8000 是否可访问']
+        ['启动后端：python -m src.modules.api', '检查 http://localhost:8001 是否可访问']
       )
     } else {
       setError(

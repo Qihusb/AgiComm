@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  agicomm:
+    build: .
+    container_name: agicomm-api
+    ports:
+      - "8001:8001"
+    environment:
+      # 从 .env 文件读取 API 密钥
+      ZHIPU_API_KEY: ${ZHIPU_API_KEY}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      PRIMARY_PROVIDER: ${PRIMARY_PROVIDER:-zhipu}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      # 确保数据目录挂载（可选，用于热更新数据）
+      - ./data:/app/data:ro
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - agicomm-network
+
+networks:
+  agicomm-network:
+    driver: bridge

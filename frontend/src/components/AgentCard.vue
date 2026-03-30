@@ -1,49 +1,49 @@
 <template>
-  <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-blue-500/50 transition-all group shadow-xl">
-    <div class="flex justify-between items-start mb-6">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl transition-all group hover:border-blue-400/50 dark:border-slate-700 dark:bg-slate-800 sm:p-6">
+    <div class="mb-6 flex items-start justify-between">
       <div class="flex items-center space-x-4">
-        <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-2xl group-hover:bg-blue-600 transition-colors">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-2xl transition-colors group-hover:bg-blue-600 dark:bg-slate-700">
           {{ getFlag(agent.country) }}
         </div>
         <div>
-          <h3 class="text-lg font-bold text-white leading-tight">{{ agent.media_name }}</h3>
+          <h3 class="text-lg font-bold leading-tight text-slate-900 dark:text-white">{{ agent.media_name }}</h3>
           <p class="text-xs text-slate-500">{{ agent.country }} · {{ agent.ownership }}</p>
         </div>
       </div>
-      <div class="px-2 py-1 rounded bg-slate-900 text-[10px] font-mono text-blue-400 border border-blue-400/20">
+      <div class="rounded border border-blue-200 bg-blue-50 px-2 py-1 font-mono text-[10px] text-blue-700 dark:border-blue-400/20 dark:bg-slate-900 dark:text-blue-400">
         {{ agent.behavior_tag }}
       </div>
     </div>
 
-    <div class="relative bg-slate-900/50 rounded-xl p-4 mb-6 border border-slate-700/50">
-      <span class="absolute -top-3 left-4 px-2 bg-slate-800 text-[10px] text-slate-500 uppercase">Inquiry Content</span>
-      <p class="text-slate-300 text-sm italic leading-relaxed">
+    <div class="relative mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-900/50">
+      <span class="absolute -top-3 left-4 bg-white px-2 text-[10px] uppercase text-slate-500 dark:bg-slate-800">Inquiry Content</span>
+      <p class="text-sm italic leading-relaxed text-slate-700 dark:text-slate-300">
         "{{ agent.content }}"
       </p>
     </div>
 
     <div class="space-y-3">
-      <div class="flex justify-between items-center text-[10px] text-slate-500 uppercase font-bold">
+      <div class="flex items-center justify-between text-[10px] font-bold uppercase text-slate-500">
         <span>认知偏向 (Cognitive Bias)</span>
-        <span class="text-blue-500">{{ agent.dominant_tag || 'General' }}</span>
+        <span class="text-blue-600 dark:text-blue-500">{{ agent.dominant_tag || 'General' }}</span>
       </div>
-      
+
       <div class="grid grid-cols-2 gap-4">
         <div class="space-y-1">
           <div class="flex justify-between text-[10px]">
-            <span class="text-slate-400">风险意识</span>
+            <span class="text-slate-500 dark:text-slate-400">风险意识</span>
             <span class="text-slate-500">85%</span>
           </div>
-          <div class="h-1 bg-slate-700 rounded-full overflow-hidden">
+          <div class="h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
             <div class="h-full bg-red-500/60" style="width: 85%"></div>
           </div>
         </div>
         <div class="space-y-1">
           <div class="flex justify-between text-[10px]">
-            <span class="text-slate-400">事实核查</span>
+            <span class="text-slate-500 dark:text-slate-400">事实核查</span>
             <span class="text-slate-500">60%</span>
           </div>
-          <div class="h-1 bg-slate-700 rounded-full overflow-hidden">
+          <div class="h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
             <div class="h-full bg-blue-500/60" style="width: 60%"></div>
           </div>
         </div>
@@ -56,13 +56,12 @@
 defineProps({
   agent: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
 
-// 一个简单的国旗映射函数（示意）
 const getFlag = (country) => {
-  const flags = { '中国': '🇨🇳', '美国': '🇺🇸', '英国': '🇬🇧', '日本': '🇯🇵', '法国': '🇫🇷' }
+  const flags = { 中国: '🇨🇳', 美国: '🇺🇸', 英国: '🇬🇧', 日本: '🇯🇵', 法国: '🇫🇷' }
   return flags[country] || '🌐'
 }
 </script>
