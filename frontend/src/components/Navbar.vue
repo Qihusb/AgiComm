@@ -56,6 +56,16 @@
     </div>
 
     <div class="flex shrink-0 items-center gap-2 sm:gap-4 md:gap-6">
+      <!-- 模型状态检查按钮 -->
+      <router-link
+        to="/model-status"
+        class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
+        title="查看模型服务状态"
+      >
+        <span class="text-base">🔧</span>
+        <span class="hidden md:inline">模型监控</span>
+      </router-link>
+
       <!-- 深色模式 滑块开关 -->
       <label class="relative inline-flex h-8 w-12 items-center rounded-full bg-slate-200 p-1 transition-colors duration-200 peer-checked:bg-slate-700 dark:bg-slate-700">
         <input

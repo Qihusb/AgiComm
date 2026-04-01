@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import InquiryView from '../views/InquiryView.vue'
 import NewsView from '../views/NewsView.vue'
 import SocialView from '../views/SocialView.vue'
+import ModelStatusView from '../views/ModelStatusView.vue'
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/social',
     name: 'social',
     component: SocialView
+  },
+  {
+    path: '/model-status',
+    name: 'modelStatus',
+    component: ModelStatusView
   }
 ]
 

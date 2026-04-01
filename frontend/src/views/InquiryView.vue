@@ -105,8 +105,9 @@
             </div>
             <button 
               @click="runInquiry"
-              :disabled="loading || !eventText.trim()"
+              :disabled="loading || !eventText.trim() || selectedMedia.length === 0"
               class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:from-slate-600 disabled:to-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 text-lg"
+              :title="selectedMedia.length === 0 ? '请先选择至少一个媒体' : ''"
             >
               <span v-if="loading" class="animate-spin text-xl">⚙️</span>
               <span v-else class="text-xl">▶️</span>
@@ -690,6 +691,18 @@ const runInquiry = async () => {
     return
   }
 
+  if (selectedMedia.value.length === 0) {
+    setError(
+      'VALIDATION_ERROR',
+      '⚠️ 未选择媒体',
+      '请至少选择一个媒体后再开启仿真。',
+      '',
+      ['在左侧媒体列表中选择至少1个媒体', '可使用搜索框快速找到所需媒体'],
+      '媒体选择数量不限，建议1-15个以获得最佳体验。'
+    )
+    return
+  }
+
   loading.value = true
   clearError()
   results.value = []
@@ -701,7 +714,7 @@ const runInquiry = async () => {
     if (selectedMedia.value.length > 0) {
       body.media_ids = selectedMedia.value.slice(0, MEDIA_LIMIT)
     }
-
+    
     const response = await fetch(`${API_BASE}/simulate/inquiry`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -760,14 +773,36 @@ const runInquiry = async () => {
           let jsonStr = buffer.slice(start, end + 1)
           try {
             const obj = JSON.parse(jsonStr)
-            // 检测是否包含后端异常信息
-            if (isErrorResponse(obj.content)) {
-              obj.is_participating = false
-              obj.has_error = true
+            
+            // 初始化字段
+            obj.has_error = false
+            obj.is_participating = obj.is_participating !== undefined ? obj.is_participating : false
+            
+            // 如果后端明确返回了 is_participating 字段，就使用后端的值
+            // 否则，根据内容是否包含错误来判断
+            if (obj.is_participating === undefined || obj.is_participating === null) {
+              // 检测是否包含后端异常信息（如果内容中有错误关键字）
+              if (isErrorResponse(obj.content)) {
+                obj.is_participating = false
+                obj.has_error = true
+              } else {
+                // 默认认为参与（因为后端生成了内容）
+                obj.is_participating = true
+                obj.has_error = false
+              }
+            } else {
+              // 后端明确指定了，但如果内容有错误，还是标记 has_error
+              if (isErrorResponse(obj.content)) {
+                obj.has_error = true
+              }
             }
+            
             results.value.push(obj)
+            console.log(`✓ 收到媒体: ${obj.media_name} (${obj.media_id}) - is_participating: ${obj.is_participating}, content: ${obj.content.substring(0, 30)}...`)
             receivedCount.value++
-          } catch {}
+          } catch (e) {
+            console.log(`✗ JSON 解析失败: ${e.message}, jsonStr: ${jsonStr.substring(0, 50)}...`)
+          }
 
           buffer = buffer.slice(end + 1)
           start = buffer.indexOf('{"media_id"')

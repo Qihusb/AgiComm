@@ -1,7 +1,9 @@
 # 工具文件说明
+
 > 可重复使用的功能性代码，包括数据处理（json->csv、向上泛化到科技类）
 
 ## [media_processor.py](src\utils\media_processor.py)
+
 - **功能概述**
   - 将 `media_profiles.json` 中的媒体画像数据进行扁平化与清洗。
   - 将同一份原始数据拆分为两个实验数据集 `data\processed\`：
@@ -33,22 +35,22 @@
      - `history` 列表：提取最后一条记录的 `value`，写入 `*_latest_value`
   3. 合并静态+动态  
      将 `static_profile` 与展平后的动态字段合并为单行，累计成表。
-  4. 清洗与补全  
+  4. 清洗与补全
      - 所有 `topic_focus` 相关列缺失值填充为 `0`
      - 确保静态字段存在：`media_id/media_name/country/region/ownership_type`
        - 若缺失则补为 `"Unknown"`
-  5. 按用途拆分数据集  
+  5. 按用途拆分数据集
      - 提问动态：筛选列名含 `press_conference` 或 `consistency`
      - 报道动态：筛选列名含 `news_reports` 或 `social_metrics`
      - 两者均保留核心静态列（含 `is_press_conference_regular`）
   6. 导出 CSV  
      使用 `utf-8-sig` 编码保存，便于中文环境（如 Excel）打开。
 
+## [media_science_inquiring_upward_generalization.py](src\utils\media_science_inquiring_upward_generalization.py)
 
-## [media_upward_generalization.py](src\utils\media_upward_generalization.py)
 - **功能概述**
   - 将 `data\processed\media_science_inquiring_dynamic.csv` 中与航天提问相关的特征，上升泛化为“通用科学传播画像”。
-  - 生成用于后续分析/建模的精简特征表，输出到 `data\processed\media_science_generalized.csv`。
+  - 生成用于后续分析/建模的精简特征表，输出到 `data\processed\media_science_inquiring_generalized.csv`。
 
 - **输入**
   - `input_path`（默认）：
@@ -73,23 +75,85 @@
      对 5 个航天话题列判断是否大于 0，统计非零话题数并除以 5。
   3. 计算科学特化度 `sci_specialization`  
      对 5 个航天话题列按行计算标准差（离散程度越大，特化倾向越明显）。
-  4. 提取主导科学标签 `sci_dominant_tag`  
+  4. 提取主导科学标签 `sci_dominant_tag`
      - 取 5 个话题列中最大值对应列（`idxmax`）
      - 通过 `topic_map` 映射为通用标签（如 `Frontier_Exploration` 等）
      - 若 5 列之和为 0，则标为 `Universal_Reporter`
   5. 意图字段泛化重命名  
      将场景化字段 `press_conference_question_intent_focus_structure_*` 重命名为通用 `intent_*` 字段（如 `intent_risk_assessment`）。
      包括如下字段：
-      - `intent_agenda_setting`:议程设置意图，数值高的Agent关注“下一步要做什么”
-      - `intent_fact_checking`:事实核查意图，该数值高的Agent不容易被宏大叙事忽悠，反映了媒体的“技术硬度”
-      - `intent_diplomacy_collab`:外交与协作意向，衡量媒体对该事件在“地缘政治”与“国际合作”框架下的关注度，决定了Agent是否会问“该科学发现对中欧合作有何影响”或者“是否会排斥特定国家参与”
-      - `intent_social_impact`:社会影响评估，将纯粹的科学事实转化为价值判断，高权重的Agent会将科技进步解读为“人类福祉”或“社会变革”
-      - `intent_causal_logic`:因果逻辑挖掘，代表媒体的“深度报道倾向”，Agent可能会追溯“为什么中国能做到这一点？”或“这一突破背后的政策驱动力是什么？”
-      - `intent_risk_assessment`:风险评估/防御性视角，该数值高可能会在模拟中扮演“反对者”或“质疑者”,专门挖掘技术的双刃剑效应、伦理危机或安全漏洞
+     - `intent_agenda_setting`:议程设置意图，数值高的Agent关注“下一步要做什么”
+     - `intent_fact_checking`:事实核查意图，该数值高的Agent不容易被宏大叙事忽悠，反映了媒体的“技术硬度”
+     - `intent_diplomacy_collab`:外交与协作意向，衡量媒体对该事件在“地缘政治”与“国际合作”框架下的关注度，决定了Agent是否会问“该科学发现对中欧合作有何影响”或者“是否会排斥特定国家参与”
+     - `intent_social_impact`:社会影响评估，将纯粹的科学事实转化为价值判断，高权重的Agent会将科技进步解读为“人类福祉”或“社会变革”
+     - `intent_causal_logic`:因果逻辑挖掘，代表媒体的“深度报道倾向”，Agent可能会追溯“为什么中国能做到这一点？”或“这一突破背后的政策驱动力是什么？”
+     - `intent_risk_assessment`:风险评估/防御性视角，该数值高可能会在模拟中扮演“反对者”或“质疑者”,专门挖掘技术的双刃剑效应、伦理危机或安全漏洞
   6. 选择最终字段并导出  
      拼接核心静态字段 + 3 个科学指标 + 意图字段，保存为 `utf-8-sig` 编码 CSV。
 
+## [media_science_news_upward_generalization.py](src\utils\media_science_news_upward_generalization.py)
+
+- **功能概述**
+  - 将 `data\processed\media_science_news_dynamic.csv` 中与航天新闻报道相关的特征，上升泛化为"通用科学报道画像"。
+  - 生成用于后续分析/建模的精简特征表，输出到 `data\processed\media_science_news_generalized.csv`。
+
+- **输入**
+  - `input_path`（默认）：
+    - `../../data/processed/media_science_news_dynamic.csv`
+  - 主要依赖字段：
+    - 航天话题占比列（4 个 `news_reports_topic_focus_Science_航空航天_*` 列）
+    - 社交影响力字段（`social_metrics_x_followers_latest_value`）
+    - 常态化参与发布会标志（`is_press_conference_regular`）
+    - 媒体类型（`media_type`）
+    - 所有权类型（`ownership_type`）
+    - 核心静态列（`media_id/media_name/country/region`）
+
+- **输出**
+  - `output_path`（默认）：
+    - `../../data/processed/media_science_news_generalized.csv`
+  - 输出字段由三部分构成：
+    - 核心静态字段：`media_id/media_name/country/region/media_type/ownership_type`
+    - 报道泛化指标：`sci_activity_level/sci_report_style/sci_word_count_range/primary_report_lang`
+    - 话题权重字段：`sci_weight_frontier/sci_weight_security/sci_weight_infrastructure/sci_weight_collab`
+
+- **处理过程**
+  1. 读取输入 CSV  
+     使用 `pandas.read_csv` 载入媒体报道动态数据。
+  2. 处理占比字段 (Proportions) 与活跃度
+     - 重命名 4 个航天话题占比列，统一映射为通用权重字段：
+       - `sci_weight_frontier`：前沿探索权重（探月与深空探测）
+       - `sci_weight_security`：安全权重（运载火箭与航空航天安全）
+       - `sci_weight_infrastructure`：基础设施权重（载人航空航天与空间站）
+       - `sci_weight_collab`：合作权重（卫星技术与国际合作）
+     - 计算报道活跃度评分 `sci_activity_level`（范围 0-1）：
+       - 基础：常态化参与发布会 → 0.7 或 0.2
+       - 增益：社交影响力的 log10 值（权重 0.3）
+  3. 模拟报道字数 (Word Count Range)  
+     基于媒体类型的启发式规则生成模拟字数范围，用于后续内容生成模型：
+     - **报纸**：800-1500 字（深度报道）
+     - **通讯社**：300-600 字（简洁新闻）
+     - **电视/广播**：200-500 字（限制时长）
+     - **互联网媒体**：100-400 字（多样化内容）
+     - **其他**：400-800 字（通用范围）
+  4. 模拟报道风格 (Reporting Style)  
+     基于媒体所有权类型的启发式规则生成报道风格标签：
+     - **国有媒体** → `Grand_Official`：宏大叙事、官方立场、成就强调
+     - **私营媒体** → `Analytical_Critical`：分析视角、批判精神、深度挖掘
+     - **其他** → `General_Informative`：中立信息传递
+  5. 语言清洗  
+     从 `primary_language` 字段提取第一语言作为报道主要语言（`primary_report_lang`），处理多语言媒体的情况。
+  6. 选择最终字段并导出  
+     拼接核心静态字段 + 4 个报道泛化指标 + 4 个话题权重字段，保存为 `utf-8-sig` 编码 CSV，确保中文字符显示正确。
+
+- **输出日志示例**
+  ```
+  ✅ 媒体报道泛化画像已生成。
+     - 包含占比权重列: ['sci_weight_frontier', 'sci_weight_security', 'sci_weight_infrastructure', 'sci_weight_collab']
+     - 已注入模拟字段: sci_word_count_range, sci_report_style
+  ```
+
 ## [llm_client.py](src\utils\llm_client.py)
+
 - **功能概述**
   - 提供统一的 LLM 调用客户端，封装对 `OpenAI Chat Completions` 接口的访问。
   - 通过系统提示词和用户提示词输入，生成媒体 Agent 的文本输出（如提问内容）。
@@ -110,13 +174,14 @@
      发送 `system + user` 双消息到 `chat.completions.create`。
   3. 参数控制  
      推理参数使用配置中的 `temperature` 与 `max_tokens`。
-  4. 结果返回与异常处理  
-     - 正常：返回第一条候选回复文本  
+  4. 结果返回与异常处理
+     - 正常：返回第一条候选回复文本
      - 异常：打印错误并返回固定失败提示
   5. 全局实例  
      文件末尾实例化 `llm_client = LLMClient()`，方便其他模块直接复用。
 
 ## [netizen_science_upward_generalization.py](src\utils\netizen_science_upward_generalization.py)
+
 - **功能概述**
   - 面向**网民画像**（Excel 原始表），将多个科技领域文件**字段对齐**并合并为一套**标准列结构**，实现“向上泛化”后的统一网民画像库。
   - 与 `media_upward_generalization.py`（媒体侧 CSV）不同：本脚本读 **`.xlsx`**，按领域配置批量处理。

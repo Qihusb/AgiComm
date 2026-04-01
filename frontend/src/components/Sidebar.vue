@@ -55,6 +55,9 @@
         <span class="text-xl transition-transform group-hover:scale-110">🌐</span>
         <span class="font-medium text-slate-800 dark:text-slate-200">受众传播仿真</span>
       </router-link>
+
+
+
     </nav>
 
     <div class="border-t border-slate-200 p-4 dark:border-slate-800 md:p-6">
