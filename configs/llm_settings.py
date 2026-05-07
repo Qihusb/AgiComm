@@ -9,7 +9,7 @@ PROVIDERS_CONFIG = {
     "deepseek": {
         "api_key": os.getenv("DEEPSEEK_API_KEY"),
         "base_url": "https://api.deepseek.com",
-        "models": ["deepseek-v4-pro", "deepseek-v4-flash", "deepseek-chat"],
+        "models": ["deepseek-v4-flash", "deepseek-chat"],
     },
     "zhipu": {
         "api_key": os.getenv("ZHIPU_API_KEY"),

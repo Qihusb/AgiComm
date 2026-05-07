@@ -507,7 +507,7 @@ async def analyze_social_simulation(request: SocialSimulationAnalysisRequest):
             f"【分析指令】：{prompt_text}"
         )
 
-        system_prompt = "你是一个结构化分析师，请基于统计数据和样本给出传播路径、情感演化及优化建议。"
+        system_prompt = "你是一个结构化分析师，请基于统计数据和样本分析本次传播演化仿真的结果，并说明此次事件在传播演化中的效果。直接输出结果，不要有任何多余的解释。"
 
         # 5. 调用模型
         analysis = llm_client.ask(

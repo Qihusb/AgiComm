@@ -344,7 +344,10 @@
             <div v-else-if="analysisError" class="text-sm text-red-700 dark:text-red-300">{{ analysisError }}</div>
             <!-- 使用 markdown-body 类并绑定格式化后的 HTML -->
             <div v-else-if="analysis" class="ai-analysis-container prose prose-slate dark:prose-invert max-w-none text-sm">
-              <div v-html="analysisFormatted"></div>
+              <!-- 增加过渡动画 -->
+              <transition name="fade">
+                <div v-html="analysisFormatted"></div>
+              </transition>
             </div>
             <div v-else class="text-sm text-slate-500 dark:text-slate-400">AI 分析结果将在仿真完成后自动生成。</div>
           </div>
@@ -548,5 +551,19 @@ input[type="range"] {
 :deep(.ai-analysis-container p) {
   margin-bottom: 0.75rem;
   line-height: 1.6;
+}
+
+:deep(.ai-analysis-container) {
+  word-break: break-word; /* 强制换行 */
+  overflow-wrap: break-word;
+}
+
+/* 针对 Markdown 中的代码块加强显示 */
+:deep(.ai-analysis-container pre) {
+  background-color: #1e293b;
+  color: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
 }
 </style>

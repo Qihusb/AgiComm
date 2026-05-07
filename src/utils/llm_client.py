@@ -57,85 +57,47 @@ class MultiProviderClient:
         # self.model_pool = valid_pool 
         return health_results
 
-    def ask(
-        self,
-        system_prompt: str,
-        user_prompt: str,
-        **kwargs
-    ) -> str:
+    def ask(self, system_prompt: str, user_prompt: str, **kwargs) -> str:
         attempts = []
-        # 合并参数
-        temp = kwargs.get("temperature", LLM_COMMON_CONFIG["temperature"])
-        tokens = kwargs.get("max_tokens", LLM_COMMON_CONFIG["max_tokens"])
-        actual_timeout = kwargs.get("timeout", LLM_COMMON_CONFIG["timeout"])
+        # 提高默认 token 限制，防止截断
+        temp = kwargs.get("temperature", LLM_COMMON_CONFIG.get("temperature", 0.7))
+        tokens = kwargs.get("max_tokens", LLM_COMMON_CONFIG.get("max_tokens", 4096)) # 建议默认给大一点
+        actual_timeout = kwargs.get("timeout", LLM_COMMON_CONFIG.get("timeout", 60))
 
-        # 遍历模型池：先换型号，再换供应商
         for target in self.model_pool:
-            try:
-                provider = target["provider"]
-                model = target["model_name"]
-                messages = [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ]
-
-                if provider == "deepseek":
+            # 每个模型最多尝试 2 次
+            for retry_idx in range(2):
+                try:
                     client = openai.OpenAI(
                         api_key=target["api_key"],
                         base_url=target["base_url"],
                         timeout=actual_timeout
                     )
+                    
                     response = client.chat.completions.create(
-                        model=model,
-                        messages=messages,
+                        model=target["model_name"],
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
                         temperature=temp,
                         max_tokens=tokens,
                     )
-
-                elif provider == "zhipu":
-                    if ZhipuAiClient is not None:
-                        client = ZhipuAiClient(api_key=target["api_key"])
-                        response = client.chat.completions.create(
-                            model=model,
-                            messages=messages,
-                            temperature=temp,
-                            max_tokens=tokens,
-                        )
-                    else:
-                        client = openai.OpenAI(
-                            api_key=target["api_key"],
-                            base_url=target["base_url"],
-                            timeout=actual_timeout
-                        )
-                        response = client.chat.completions.create(
-                            model=model,
-                            messages=messages,
-                            temperature=temp,
-                            max_tokens=tokens,
-                        )
-
-                else:
-                    client = openai.OpenAI(
-                        api_key=target["api_key"],
-                        base_url=target["base_url"],
-                        timeout=actual_timeout
-                    )
-                    response = client.chat.completions.create(
-                        model=model,
-                        messages=messages,
-                        temperature=temp,
-                        max_tokens=tokens,
-                    )
-
-                return response.choices[0].message.content.strip()
-
-            except Exception as e:
-                err_msg = str(e)
-                attempts.append({
-                    "provider": target["provider"],
-                    "model": target["model_name"],
-                    "error": err_msg
-                })
-                print(f"⚠️ {target['provider']}({target['model_name']}) 失败: {err_msg}")
+                    
+                    res_content = response.choices[0].message.content
+                    if res_content:
+                        return res_content.strip()
+                    
+                except Exception as e:
+                    err_msg = str(e)
+                    print(f"⚠️ {target['provider']}({target['model_name']}) 尝试 {retry_idx+1} 失败: {err_msg}")
+                    if retry_idx == 1: # 两次都失败了才记录并换下一个模型
+                        attempts.append({
+                            "provider": target["provider"],
+                            "model": target["model_name"],
+                            "error": err_msg
+                        })
+        
+        raise LLMUnavailableError("所有模型供应商均不可用", attempts)
                 
 llm_client = MultiProviderClient()
