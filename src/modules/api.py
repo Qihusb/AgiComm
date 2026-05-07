@@ -7,6 +7,7 @@ import json
 from typing import Optional
 from pathlib import Path
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -112,12 +113,26 @@ class NewsRequest(BaseModel):
         return v
 
 
+from src.utils.llm_client import llm_client
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):  # 这里加了 async
+    """服务启动时自动检查模型状态"""
+    results = llm_client.check_health()
+    ok_count = sum(1 for r in results if r["status"] == "ok")
+    print(f"✅ LLM 自检完成: {ok_count}/{len(results)} 个模型可用")
+    if ok_count == 0:
+        print("❌ 警告：当前没有任何可用的 LLM 配置，请检查 .env 文件！")
+    yield
+
 app = FastAPI(
     title="AgiComm Simulation API",
     description="统一仿真入口：媒体提问及后续扩展模块。",
     version="1.0.0",
     docs_url="/docs",  # 确保文档可用
     redocs_url="/redoc",
+    lifespan=lifespan,
 )
 
 setup_exception_handlers(app)
@@ -129,17 +144,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-from src.utils.llm_client import llm_client
-# 在 app 定义后添加
-@app.on_event("startup")
-async def startup_event():
-    """服务启动时自动检查模型状态"""
-    results = llm_client.check_health()
-    ok_count = sum(1 for r in results if r["status"] == "ok")
-    print(f"✅ LLM 自检完成: {ok_count}/{len(results)} 个模型可用")
-    if ok_count == 0:
-        print("❌ 警告：当前没有任何可用的 LLM 配置，请检查 .env 文件！")
 
 # 暴露一个接口供前端查看状态
 @app.get("/llm/status")
@@ -351,6 +355,187 @@ async def run_news(request: NewsRequest):
         media_type="application/x-ndjson",
     )
 
+
+# ---------------------------------------------------------------------------
+# 【社会传播仿真】新增：受众媒体接触行为仿真
+# ---------------------------------------------------------------------------
+from typing import List, Optional, Dict
+from pydantic import BaseModel, Field
+from pathlib import Path
+
+from src.modules.social_simulation.social_simulation_api import (
+    SimulationResponse,
+    run_social_simulation,
+    get_simulation_templates
+)
+
+_SOCIAL_SIMULATION_DATA_PATH = "data/processed/netizen_science_standardized_profiles.csv"
+
+
+# ===================== 请求模型（唯一版本） =====================
+
+class SocialSimulationRequest(BaseModel):
+    """社会传播仿真请求（唯一生效版本）"""
+
+    event_text: str = Field(..., description="事件描述文本")
+    event_emotion: Optional[float] = Field(default=0.6)
+    event_stance: Optional[float] = Field(default=0.5)
+
+    num_seeds: int = Field(default=5)
+    seed_strategy: str = Field(default="influence")
+
+    emotion_threshold: Optional[float] = None
+    stance_range: Optional[List[float]] = None
+
+    # 🔥 关键修复：必须存在
+    influence_threshold: Optional[float] = None
+
+    max_steps: int = Field(default=10)
+    enable_llm: bool = Field(default=False)
+
+    experiment_name: str = Field(default="social_propagation")
+
+
+# ===================== API =====================
+
+@app.post("/simulate/social")
+async def social_propagation_simulation(request: SocialSimulationRequest):
+
+    try:
+        # 1. 文件检查
+        if not Path(_SOCIAL_SIMULATION_DATA_PATH).exists():
+            return {
+                "status": "error",
+                "message": "数据文件不存在"
+            }
+
+        # 2. 直接使用 request（❗不要再转换！！）
+        sim_request = request
+
+        print("DEBUG REQUEST:", sim_request.model_dump())
+
+        # 3. 运行仿真
+        response = run_social_simulation(
+            sim_request,
+            _SOCIAL_SIMULATION_DATA_PATH
+        )
+
+        if response.status == "success":
+            return {
+                "status": "success",
+                "data": response.data,
+                "meta": response.meta
+            }
+
+        return {
+            "status": "error",
+            "message": response.error
+        }
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+
+class SocialSimulationAnalysisRequest(BaseModel):
+    """社会传播仿真结果 AI 分析请求"""
+
+    simulation_data: dict = Field(
+        ..., description="仿真产生的全部数据与结果，用于AI分析"
+    )
+    analysis_prompt: Optional[str] = Field(
+        default="请基于仿真结果进行分析，找出关键传播驱动因素、情感演化趋势、立场分化情况及策略建议。"
+    )
+
+
+@app.post("/simulate/social/analyze")
+async def analyze_social_simulation(request: SocialSimulationAnalysisRequest):
+    try:
+        # 1. 提取基础信息
+        prompt_text = (request.analysis_prompt or "请基于仿真结果进行分析，找出关键传播驱动因素、情感演化趋势及策略建议。").strip()
+        raw_results = request.simulation_data.get("results", {})
+        
+        # 2. 【核心步骤】数据脱水与统计聚合
+        # AI 不需要看几万条原始 JSON，它只需要看“趋势”
+        summary_stats = {
+            "event": request.simulation_data.get("event"),
+            "parameters": request.simulation_data.get("parameters"),
+            "metrics": {
+                "total_actions": len(raw_results.get("decision_trace", [])),
+                "avg_emotion_shift": 0,
+                "avg_stance_shift": 0,
+                "action_distribution": {}
+            }
+        }
+
+        # 简单的统计逻辑（减少数据量）
+        trace = raw_results.get("decision_trace", [])
+        if trace:
+            # 计算情感和立场变化的平均值
+            summary_stats["metrics"]["avg_emotion_shift"] = sum(item.get("emotion_shift", 0) for item in trace) / len(trace)
+            summary_stats["metrics"]["avg_stance_shift"] = sum(item.get("stance_shift", 0) for item in trace) / len(trace)
+            
+            # 统计动作分布（转发、评论等）
+            actions = [item.get("action") for item in trace]
+            summary_stats["metrics"]["action_distribution"] = {act: actions.count(act) for act in set(actions)}
+
+        # 3. 【核心步骤】只保留极少量的典型样本（去重或截断）
+        # 只选取前 5 条和后 5 条，且只保留 AI 分析关心的字段，剔除 Prob/ID 等冗余数字
+        sample_trace = []
+        for item in (trace[:5] + trace[-5:] if len(trace) > 10 else trace):
+            sample_trace.append({
+                "action": item.get("action"),
+                "text": item.get("generated_text", "")[:50], # 文本也做截断
+                "emotion": item.get("emotion_shift"),
+                "stance": item.get("stance_shift")
+            })
+        
+        summary_payload = {
+            "event_summary": summary_stats,
+            "representative_samples": sample_trace
+        }
+
+        # 4. 构建精简后的 Prompt
+        user_prompt = (
+            "你是一个社会传播专家。请分析以下仿真摘要：\n\n"
+            f"【核心统计数据】：\n{json.dumps(summary_payload['event_summary'], ensure_ascii=False, indent=2)}\n\n"
+            f"【典型行为样本】：\n{json.dumps(summary_payload['representative_samples'], ensure_ascii=False, indent=2)}\n\n"
+            f"【分析指令】：{prompt_text}"
+        )
+
+        system_prompt = "你是一个结构化分析师，请基于统计数据和样本给出传播路径、情感演化及优化建议。"
+
+        # 5. 调用模型
+        analysis = llm_client.ask(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.7,
+            max_tokens=1000, # 适当增加输出长度
+        )
+
+        return {"status": "success", "analysis": analysis}
+
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+# ===================== templates =====================
+
+@app.get("/simulate/social/templates")
+async def get_social_simulation_templates():
+    try:
+        return {
+            "status": "success",
+            "templates": get_simulation_templates()
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
 # ---------------------------------------------------------------------------
 # 【SPA 路由】提供前端应用支持（处理客户端路由）
 # ---------------------------------------------------------------------------

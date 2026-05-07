@@ -10,10 +10,15 @@
     "noEmit": true,
     "jsx": "preserve",
     "strict": true,
-    "types": ["vite/client", "node"],
+    "types": ["vite/client"],
     "skipLibCheck": true,
-    "baseUrl": "."
-  },
-  "include": ["src", "vite.config.ts"]
-}
 
+    "paths": {
+      "~/*": ["./src/*"],
+      "@/*": ["./src/*"]
+    },
+
+    "moduleDetection": "force"
+  },
+  "include": ["src/**/*", "vite.config.ts"]
+}
